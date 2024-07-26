@@ -93,7 +93,18 @@ blogRouter.get('/bulk', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL
     }).$extends(withAccelerate());
-    const blogs = await prisma.post.findMany();
+    const blogs = await prisma.post.findMany({
+        select:{
+            title:true,
+            content:true,
+            id: true,
+            author: {
+                select:{
+                    name: true,
+                }
+            }
+        }
+    });
     return c.json({blogs});
 })
   
@@ -104,7 +115,17 @@ blogRouter.get('/:id', async (c) => {
     }).$extends(withAccelerate());
     try{
         const blog = await prisma.post.findUnique({
-            where:{id}
+            where:{id},
+            select:{
+                title:true,
+                content:true,
+                id: true,
+                author: {
+                    select:{
+                        name: true,
+                    }
+                }
+            }
         })
         return c.json(blog);
     }
